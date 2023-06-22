@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SalesMvc.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 string mysqlconnection = 
@@ -10,6 +10,8 @@ string mysqlconnection =
 builder.Services.AddDbContext<SalesMvcContext>(options =>
     options.UseMySql(mysqlconnection,
         ServerVersion.AutoDetect(mysqlconnection)));
+
+builder.Services.AddScoped<SeedingService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -23,6 +25,13 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+var option = new DbContextOptionsBuilder<SalesMvcContext>()
+    .UseMySql(mysqlconnection, ServerVersion.AutoDetect(mysqlconnection)).Options
+    ;
+var dbContext = new SalesMvcContext(option);
+var seedingService = new SeedingService(dbContext);
+seedingService.Seed();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
