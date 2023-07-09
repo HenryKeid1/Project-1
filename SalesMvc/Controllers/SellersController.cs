@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MessagePack;
+using Microsoft.AspNetCore.Mvc;
 using SalesMvc.Models;
 using SalesMvc.Models.ViewModels;
 using SalesMvc.Services;
@@ -56,6 +57,20 @@ namespace SalesMvc.Controllers
         {
             _sellerService.Remove(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var obj = _sellerService.FindById(id.Value);
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            return View(obj);
         }
     }
 }
